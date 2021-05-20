@@ -1,4 +1,4 @@
-ARG HUMHUB_VERSION
+ARG HUMHUB_VERSION=1.4
 ARG VCS_REF
 
 FROM composer:2.0.13 as builder-composer
@@ -17,7 +17,7 @@ ADD https://github.com/humhub/humhub/archive/v${HUMHUB_VERSION}.tar.gz /usr/src/
 RUN tar xzf v${HUMHUB_VERSION}.tar.gz && \
     mv humhub-${HUMHUB_VERSION} humhub && \
     rm v${HUMHUB_VERSION}.tar.gz
-    
+
 WORKDIR /usr/src/humhub
 
 COPY --from=builder-composer /usr/bin/composer /usr/bin/composer
@@ -65,15 +65,15 @@ FROM docker.io/library/alpine:3.13.5 as base
 
 ARG HUMHUB_VERSION
 LABEL name="HumHub" version=${HUMHUB_VERSION} variant="base" \
-      org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.name="HumHub" \
-      org.label-schema.description="HumHub is a feature rich and highly flexible OpenSource Social Network Kit written in PHP" \
-      org.label-schema.url="https://www.humhub.com/" \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vcs-url="https://github.com/mriedmann/humhub-docker" \
-      org.label-schema.vendor="HumHub GmbH" \
-      org.label-schema.version=${HUMHUB_VERSION} \
-      org.label-schema.schema-version="1.0"
+    org.label-schema.build-date=$BUILD_DATE \
+    org.label-schema.name="HumHub" \
+    org.label-schema.description="HumHub is a feature rich and highly flexible OpenSource Social Network Kit written in PHP" \
+    org.label-schema.url="https://www.humhub.com/" \
+    org.label-schema.vcs-ref=$VCS_REF \
+    org.label-schema.vcs-url="https://github.com/mriedmann/humhub-docker" \
+    org.label-schema.vendor="HumHub GmbH" \
+    org.label-schema.version=${HUMHUB_VERSION} \
+    org.label-schema.schema-version="1.0"
 
 RUN apk add --no-cache \
     curl \
@@ -158,8 +158,8 @@ COPY phponly/ /
 
 ADD https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck /usr/local/bin/php-fpm-healthcheck
 RUN chmod +x /usr/local/bin/php-fpm-healthcheck \
- && addgroup -g 101 -S nginx \
- && adduser --uid 100 -g 101 -S nginx
+    && addgroup -g 101 -S nginx \
+    && adduser --uid 100 -g 101 -S nginx
 
 EXPOSE 9000
 

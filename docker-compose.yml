@@ -1,27 +1,31 @@
-# NOTE: This files purpose is to spin-up the project for testing it in CI. 
-#       Please do not understand it as recommendation for an production 
-#       docker-compose setup. For that see the README. If you have additions 
+# NOTE: This files purpose is to spin-up the project for testing it in CI.
+#       Please do not understand it as recommendation for an production
+#       docker-compose setup. For that see the README. If you have additions
 #       to make, please add them there.
-version: '3.1'
+version: "3.1"
 services:
   humhub:
-    image: docker.io/mriedmann/humhub:latest
+    image: docker.io/mriedmann/humhub:1.4
     ports:
-      - "8080:80"
+      - "80:80"
     environment:
       HUMHUB_DB_USER: ${HUMHUB_DB_USER}
       HUMHUB_DB_PASSWORD: ${HUMHUB_DB_PASSWORD}
-      HUMHUB_DB_HOST: 'db'
-      HUMHUB_DB_NAME: 'humhub'
+      HUMHUB_DB_HOST: "db"
+      HUMHUB_DB_NAME: "humhub"
       HUMHUB_AUTO_INSTALL: 1
       HUMHUB_DEBUG: 1
-      HUMHUB_PROTO: 'https'
-      HUMHUB_HOST: 'localhost'
+      HUMHUB_PROTO: "https"
+      HUMHUB_HOST: "localhost"
+      # Admin config
+      HUMHUB_ADMIN_LOGIN: admin
+      HUMHUB_ADMIN_EMAIL: address@mail.com
+      HUMHUB_ADMIN_PASSWORD: 123456
       # Mailer install setup
-      HUMHUB_MAILER_SYSTEM_EMAIL_ADDRESS: 'noreply@example.com'
-      HUMHUB_MAILER_SYSTEM_EMAIL_NAME: 'HumHub'
-      HUMHUB_MAILER_TRANSPORT_TYPE: 'smtp'
-      HUMHUB_MAILER_HOSTNAME: 'mailer'
+      HUMHUB_MAILER_SYSTEM_EMAIL_ADDRESS: "noreply@example.com"
+      HUMHUB_MAILER_SYSTEM_EMAIL_NAME: "HumHub"
+      HUMHUB_MAILER_TRANSPORT_TYPE: "smtp"
+      HUMHUB_MAILER_HOSTNAME: "mailer"
       HUMHUB_MAILER_PORT: 1025
       #HUMHUB_MAILER_USERNAME:
       #HUMHUB_MAILER_PASSWORD:
@@ -34,41 +38,49 @@ services:
       HUMHUB_REDIS_HOSTNAME: redis
       HUMHUB_REDIS_PORT: 6379
       HUMHUB_REDIS_PASSWORD: redis_password
-#   volumes:
-#     - "${HUMHUB_VOLUME_CONFIG}:/var/www/localhost/htdocs/protected/config"
+    #   volumes:
+    #     - "${HUMHUB_VOLUME_CONFIG}:/var/www/localhost/htdocs/protected/config"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/ping"]
       interval: 30s
       timeout: 10s
       retries: 3
+    depends_on:
+      - db
+      - redis
+    links:
+      - "db:db"
   db:
     image: mariadb:10.4
+    ports:
+      - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
-      MYSQL_DATABASE: 'humhub'
+      MYSQL_DATABASE: "humhub"
       MYSQL_USER: ${HUMHUB_DB_USER}
       MYSQL_PASSWORD: ${HUMHUB_DB_PASSWORD}
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "--silent"]
+      test: ["CMD-SHELL", "mysqladmin ping -u root -p$$MYSQL_ROOT_PASSWORD"]
       interval: 30s
       timeout: 10s
       retries: 3
-  mailer:
-    image: sj26/mailcatcher:latest
-    restart: always
-    expose:
-      - 1025
-    ports:
-      - "1080:1080"
+  # mailer:
+  #   image: sj26/mailcatcher:v0.8.0.beta3
+  #   restart: always
+  #   expose:
+  #     - 1025
+  #   ports:
+  #     - "1080:1080"
   redis:
     image: redis:5.0-alpine
+    ports:
+      - "6379:6379"
     expose:
-      - '6379'
-#    volumes:
-#      - /srv/humhub/redis:/data
+      - "6379"
+    #    volumes:
+    #      - /srv/humhub/redis:/data
     environment:
       - REDIS_PASSWORD=redis_password
       #- ALLOW_EMPTY_PASSWORD=yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-
