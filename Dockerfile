@@ -1,4 +1,4 @@
-ARG HUMHUB_VERSION=1.4
+ARG HUMHUB_VERSION=1.8
 ARG VCS_REF
 
 FROM composer:2.0.13 as builder-composer
